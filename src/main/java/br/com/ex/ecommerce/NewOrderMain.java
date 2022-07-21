@@ -14,10 +14,16 @@ public class NewOrderMain {
     public static void main(String[] args) {
 
         KafkaProducer producer = new KafkaProducer<String, String>(properties());
-        String value = "123, 345, 987";
+        String value = "1, ALISSON, Maquina de Lavar Roupa";
         ProducerRecord p = new ProducerRecord<String, String>("ECOMMERCE_NEW_ORDER", value, value);
         try {
-            producer.send(p).get();
+            producer.send(p, (data, ex) -> {
+             if (ex != null) {
+                 ex.printStackTrace();
+                 return;
+             }
+             System.out.println(data.topic() + " - " + data.offset() + " - " + data.timestamp());
+            }).get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
